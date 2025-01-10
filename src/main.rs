@@ -8,13 +8,11 @@ fn main() {
     ffmpeg_next::init().unwrap();
     loop {
         run_video("./data/bad-apple-small.mp4");
-        break;
     }
 }
 
 fn run_video<P: AsRef<std::path::Path> + ?Sized>(path: &P) {
     let mut input = ffmpeg_next::format::input(path).unwrap();
-
     let stream = input
         .streams()
         .best(ffmpeg_next::media::Type::Video)
@@ -55,7 +53,6 @@ fn run_video<P: AsRef<std::path::Path> + ?Sized>(path: &P) {
             decoder.send_packet(&packet).unwrap();
             receive_and_process_decoded_frames(&mut decoder).unwrap();
         }
-        // break;
     }
 
     decoder.send_eof().unwrap();
@@ -74,13 +71,13 @@ fn process_image(frame: &Video, index: usize) {
         image::imageops::FilterType::Gaussian,
     );
 
-    img.save(format!("./tmp/{}.png", index)).unwrap();
+    // Not needed for now
+    // img.save(format!("./tmp/{}.png", index)).unwrap();
 
     let mut ascii_art = String::new();
     for i in 0..img.height() {
         for j in 0..img.width() {
             let pixel = img.get_pixel(j, i);
-            // println!("{:?}", pixel);
             ascii_art += &rusty_apple::color::Color::from_pixel(pixel)
                 .to_ascii_art()
                 .to_string();

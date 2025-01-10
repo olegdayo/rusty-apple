@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 ffmpeg-next="7.1.0"
 image="0.25.5"
+prometheus="0.13.4"
