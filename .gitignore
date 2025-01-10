@@ -5,6 +5,6 @@
 target/
 
 # Data
-data/bad-apple.mp4
-data/bad-apple-small.mp4
+data/
+!data/.gitkeep
 tmp/

@@ -1,21 +1,27 @@
-use std::fmt::format;
-
 use ffmpeg_next::util::frame::video::Video;
 use image::GenericImageView;
 
+const VIDEO_WIDTH: u32 = 120;
+const VIDEO_HEIGHT: u32 = 90;
+
 fn main() {
     ffmpeg_next::init().unwrap();
-    let mut ictx = ffmpeg_next::format::input("./data/bad-apple.mp4").unwrap();
+    loop {
+        run_video("./data/bad-apple-small.mp4");
+        break;
+    }
+}
 
-    let input = ictx
+fn run_video<P: AsRef<std::path::Path> + ?Sized>(path: &P) {
+    let mut input = ffmpeg_next::format::input(path).unwrap();
+
+    let stream = input
         .streams()
         .best(ffmpeg_next::media::Type::Video)
         .unwrap();
 
-    let video_stream_index = input.index();
-
     let context_decoder =
-        ffmpeg_next::codec::context::Context::from_parameters(input.parameters()).unwrap();
+        ffmpeg_next::codec::context::Context::from_parameters(stream.parameters()).unwrap();
     let mut decoder = context_decoder.decoder().video().unwrap();
 
     let mut scaler = ffmpeg_next::software::scaling::context::Context::get(
@@ -43,8 +49,9 @@ fn main() {
             Ok(())
         };
 
-    for (stream, packet) in ictx.packets() {
-        if stream.index() == video_stream_index {
+    let index = stream.index();
+    for (stream, packet) in input.packets() {
+        if stream.index() == index {
             decoder.send_packet(&packet).unwrap();
             receive_and_process_decoded_frames(&mut decoder).unwrap();
         }
@@ -62,12 +69,12 @@ fn process_image(frame: &Video, index: usize) {
     ]
     .concat();
     let img = image::load_from_memory(&data).unwrap().resize(
-        100,
-        100,
+        VIDEO_WIDTH,
+        VIDEO_HEIGHT,
         image::imageops::FilterType::Gaussian,
     );
 
-    // img.save(format!("./tmp/{}.png", index)).unwrap();
+    img.save(format!("./tmp/{}.png", index)).unwrap();
 
     let mut ascii_art = String::new();
     for i in 0..img.height() {

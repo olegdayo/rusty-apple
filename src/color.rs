@@ -3,7 +3,7 @@ pub enum Color {
     White,
 }
 
-const THRESHOLD_BLACK: u8 = 10;
+const THRESHOLD_BLACK: u8 = 15;
 const THRESHOLD_WHITE: u8 = 240;
 
 impl Color {
@@ -12,9 +12,9 @@ impl Color {
             return Color::Black;
         }
 
-        // if pixel[0] > THRESHOLD_WHITE && pixel[1] > THRESHOLD_WHITE && pixel[2] > THRESHOLD_WHITE {
-        //     return Color::White;
-        // }
+        if pixel[0] > THRESHOLD_WHITE && pixel[1] > THRESHOLD_WHITE && pixel[2] > THRESHOLD_WHITE {
+            return Color::White;
+        }
 
         Color::White
     }
@@ -23,7 +23,6 @@ impl Color {
         match self {
             Color::Black => ' ',
             Color::White => '*',
-            // Color::Unkown => '💀',
         }
     }
 }
