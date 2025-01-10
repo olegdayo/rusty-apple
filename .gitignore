@@ -1,0 +1,10 @@
+# OS
+.DS_Store
+
+# Bin
+target/
+
+# Data
+data/bad-apple.mp4
+data/bad-apple-small.mp4
+tmp/
