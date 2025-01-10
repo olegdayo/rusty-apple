@@ -1,5 +1,5 @@
 # Rusty Apple
 
 A blazingly fast implementation of bad apple in:
-- [ ] ASCII
+- [X] ASCII
 - [ ] Prometheus + Grafana
