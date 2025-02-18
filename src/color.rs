@@ -25,4 +25,11 @@ impl Color {
             Color::White => '*',
         }
     }
+
+    pub fn to_emoji_art(self: &Color) -> char {
+        match self {
+            Color::Black => '🌑',
+            Color::White => '🌕',
+        }
+    }
 }

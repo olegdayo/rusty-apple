@@ -1,13 +1,15 @@
+use std::io::Write;
+
 use ffmpeg_next::util::frame::video::Video;
 use image::GenericImageView;
 
-const VIDEO_WIDTH: u32 = 120;
-const VIDEO_HEIGHT: u32 = 90;
+const VIDEO_WIDTH: u32 = 60;
+const VIDEO_HEIGHT: u32 = 40;
 
 fn main() {
     ffmpeg_next::init().unwrap();
     loop {
-        run_video("./data/bad-apple-small.mp4");
+        run_video("./data/bad-apple.mp4");
     }
 }
 
@@ -59,7 +61,7 @@ fn run_video<P: AsRef<std::path::Path> + ?Sized>(path: &P) {
     receive_and_process_decoded_frames(&mut decoder).unwrap();
 }
 
-fn process_image(frame: &Video, index: usize) {
+fn process_image(frame: &Video, _: usize) {
     let data = [
         format!("P6\n{} {}\n255\n", frame.width(), frame.height()).as_bytes(),
         frame.data(0),
@@ -71,18 +73,36 @@ fn process_image(frame: &Video, index: usize) {
         image::imageops::FilterType::Gaussian,
     );
 
-    // Not needed for now
-    // img.save(format!("./tmp/{}.png", index)).unwrap();
+    print!("\x1B[2J\x1B[1;1H");
+    for i in 1..img.height() - 1 {
+        let mut art = String::new();
+        let pixel = img.get_pixel(0, i);
+        art += &rusty_apple::color::Color::from_pixel(pixel)
+            .to_emoji_art()
+            .to_string();
+        for j in 1..img.width() {
+            let left_pixel = rusty_apple::color::Color::from_pixel(img.get_pixel(j - 1, i));
+            let right_pixel = rusty_apple::color::Color::from_pixel(img.get_pixel(j, i));
+            let pixel = match left_pixel {
+                rusty_apple::color::Color::Black => match right_pixel {
+                    rusty_apple::color::Color::Black => "🌑",
+                    rusty_apple::color::Color::White => "🌓",
+                },
+                rusty_apple::color::Color::White => match right_pixel {
+                    rusty_apple::color::Color::Black => "🌗",
+                    rusty_apple::color::Color::White => "🌕",
+                },
+            };
 
-    let mut ascii_art = String::new();
-    for i in 0..img.height() {
-        for j in 0..img.width() {
-            let pixel = img.get_pixel(j, i);
-            ascii_art += &rusty_apple::color::Color::from_pixel(pixel)
-                .to_ascii_art()
-                .to_string();
+            art += pixel;
         }
-        ascii_art += "\n";
+        let pixel = img.get_pixel(img.width() - 1, i);
+        art += &rusty_apple::color::Color::from_pixel(pixel)
+            .to_emoji_art()
+            .to_string();
+        art += "\n";
+        std::io::stdout().write_all(art.as_bytes()).unwrap();
+        std::io::stdout().flush().unwrap();
     }
-    println!("{}", ascii_art);
+    std::thread::sleep(core::time::Duration::from_millis(15));
 }

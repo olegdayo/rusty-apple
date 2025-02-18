@@ -3,8 +3,12 @@ build:
 	cargo build
 	cargo build --release
 
-.PHONY: run
-run: build
+.PHONY: rund
+rund: build
+	./target/release/rusty-apple
+
+.PHONY: runr
+runr: build
 	./target/release/rusty-apple
 
 .PHONY: compose
