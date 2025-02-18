@@ -1,29 +1,29 @@
 version: '3.8'
 
 services:
-  prometheus:
-    image: prom/prometheus
-    hostname: prometheus
-    ports:
-      - '9090:9090'
-    volumes:
-      - ../configs/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
-    depends_on:
-      - rusty-apple
+  # prometheus:
+  #   image: prom/prometheus
+  #   hostname: prometheus
+  #   ports:
+  #     - '9090:9090'
+  #   volumes:
+  #     - ../configs/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+  #   depends_on:
+  #     - rusty-apple
 
-  grafana:
-    image: grafana/grafana
-    hostname: grafana
-    ports:
-      - '3000:3000'
-    volumes:
-      - ../configs/grafana/new.ini:/etc/grafana/new.ini
-      - grafana-data:/var/lib/grafana
-    depends_on:
-      - prometheus
+  # grafana:
+  #   image: grafana/grafana
+  #   hostname: grafana
+  #   ports:
+  #     - '3000:3000'
+  #   volumes:
+  #     - ../configs/grafana/new.ini:/etc/grafana/new.ini
+  #     - grafana-data:/var/lib/grafana
+  #   depends_on:
+  #     - prometheus
 
   rusty-apple:
     build: .
 
-volumes:
-  grafana-data:
+# volumes:
+#   grafana-data:
