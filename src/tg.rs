@@ -24,12 +24,7 @@ pub async fn run_tg(video_width: u32, video_height: u32) {
             let (sender, receiver) = mpsc::channel();
 
             std::thread::spawn(move || {
-                run_video(
-                    "./data/bad-apple-small.mp4",
-                    video_width,
-                    video_height,
-                    sender,
-                );
+                run_video("./data/bad-apple.mp4", video_width, video_height, sender);
             });
 
             for art in receiver {
