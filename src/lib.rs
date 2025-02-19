@@ -1,9 +1,8 @@
-pub mod bot;
-pub mod color;
+pub mod art;
 pub mod tg;
 pub mod tty;
 
-use flager::{new_flag, Flag, Parser};
+use flager::{new_flag, Flag};
 
 pub const VIDEO_WIDTH: Flag<u32> = new_flag!("-w", "--width").mandatory().help("video width");
 pub const VIDEO_HEIGHT: Flag<u32> = new_flag!("-h", "--height").mandatory().help("video height");

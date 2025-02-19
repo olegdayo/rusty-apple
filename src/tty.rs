@@ -1,7 +1,6 @@
 use std::io::Write;
 
 use ffmpeg_next::util::frame::video::Video;
-use image::GenericImageView;
 
 pub fn run(video_width: u32, video_height: u32) {
     loop {
@@ -53,7 +52,7 @@ fn output_frames(
     while decoder.receive_frame(&mut decoded).is_ok() {
         let mut rgb_frame = Video::empty();
         scaler.run(&decoded, &mut rgb_frame)?;
-        let art = process_image(&rgb_frame, video_width, video_height);
+        let art = crate::art::process_image(&rgb_frame, video_width, video_height);
 
         print!("\x1B[2J\x1B[1;1H");
         std::io::stdout().write_all(art.as_bytes()).unwrap();
@@ -61,47 +60,4 @@ fn output_frames(
         std::thread::sleep(core::time::Duration::from_millis(15));
     }
     Ok(())
-}
-
-fn process_image(frame: &Video, video_width: u32, video_height: u32) -> String {
-    let data = [
-        format!("P6\n{} {}\n255\n", frame.width(), frame.height()).as_bytes(),
-        frame.data(0),
-    ]
-    .concat();
-    let img = image::load_from_memory(&data).unwrap().resize(
-        video_width,
-        video_height,
-        image::imageops::FilterType::Gaussian,
-    );
-
-    let mut art = String::new();
-    for i in 1..img.height() - 1 {
-        let pixel = img.get_pixel(0, i);
-        art += &crate::color::Color::from_pixel(pixel)
-            .to_emoji_art()
-            .to_string();
-        for j in 1..img.width() {
-            let left_pixel = crate::color::Color::from_pixel(img.get_pixel(j - 1, i));
-            let right_pixel = crate::color::Color::from_pixel(img.get_pixel(j, i));
-            let pixel = match left_pixel {
-                crate::color::Color::Black => match right_pixel {
-                    crate::color::Color::Black => "🌑",
-                    crate::color::Color::White => "🌓",
-                },
-                crate::color::Color::White => match right_pixel {
-                    crate::color::Color::Black => "🌗",
-                    crate::color::Color::White => "🌕",
-                },
-            };
-
-            art += pixel;
-        }
-        let pixel = img.get_pixel(img.width() - 1, i);
-        art += &crate::color::Color::from_pixel(pixel)
-            .to_emoji_art()
-            .to_string();
-        art += "\n";
-    }
-    art
 }
