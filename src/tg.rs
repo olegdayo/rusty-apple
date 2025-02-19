@@ -121,7 +121,6 @@ fn output_frames(
         let mut rgb_frame = Video::empty();
         scaler.run(&decoded, &mut rgb_frame)?;
         let art = crate::art::process_image(&rgb_frame, video_width, video_height);
-
         writer.send(art).unwrap();
     }
     Ok(())
