@@ -35,33 +35,39 @@ fn run_video<P: AsRef<std::path::Path> + ?Sized>(path: &P) {
     )
     .unwrap();
 
-    let mut frame_index = 0;
-
-    let mut receive_and_process_decoded_frames =
-        |decoder: &mut ffmpeg_next::decoder::Video| -> Result<(), ffmpeg_next::Error> {
-            let mut decoded = Video::empty();
-            while decoder.receive_frame(&mut decoded).is_ok() {
-                let mut rgb_frame = Video::empty();
-                scaler.run(&decoded, &mut rgb_frame)?;
-                process_image(&rgb_frame, frame_index);
-                frame_index += 1;
-            }
-            Ok(())
-        };
+    let bot = teloxide::Bot::from_env();
 
     let index = stream.index();
     for (stream, packet) in input.packets() {
         if stream.index() == index {
             decoder.send_packet(&packet).unwrap();
-            receive_and_process_decoded_frames(&mut decoder).unwrap();
+            output_frames_to_tty(&mut decoder, &mut scaler).unwrap();
         }
     }
 
     decoder.send_eof().unwrap();
-    receive_and_process_decoded_frames(&mut decoder).unwrap();
+    output_frames_to_tty(&mut decoder, &mut scaler).unwrap();
 }
 
-fn process_image(frame: &Video, _: usize) {
+fn output_frames_to_tty(
+    decoder: &mut ffmpeg_next::decoder::Video,
+    scaler: &mut ffmpeg_next::software::scaling::Context,
+) -> Result<(), ffmpeg_next::Error> {
+    let mut decoded = Video::empty();
+    while decoder.receive_frame(&mut decoded).is_ok() {
+        let mut rgb_frame = Video::empty();
+        scaler.run(&decoded, &mut rgb_frame)?;
+        let art = process_image(&rgb_frame);
+
+        print!("\x1B[2J\x1B[1;1H");
+        std::io::stdout().write_all(art.as_bytes()).unwrap();
+        std::io::stdout().flush().unwrap();
+        std::thread::sleep(core::time::Duration::from_millis(15));
+    }
+    Ok(())
+}
+
+fn process_image(frame: &Video) -> String {
     let data = [
         format!("P6\n{} {}\n255\n", frame.width(), frame.height()).as_bytes(),
         frame.data(0),
@@ -73,9 +79,8 @@ fn process_image(frame: &Video, _: usize) {
         image::imageops::FilterType::Gaussian,
     );
 
-    print!("\x1B[2J\x1B[1;1H");
+    let mut art = String::new();
     for i in 1..img.height() - 1 {
-        let mut art = String::new();
         let pixel = img.get_pixel(0, i);
         art += &rusty_apple::color::Color::from_pixel(pixel)
             .to_emoji_art()
@@ -101,8 +106,6 @@ fn process_image(frame: &Video, _: usize) {
             .to_emoji_art()
             .to_string();
         art += "\n";
-        std::io::stdout().write_all(art.as_bytes()).unwrap();
-        std::io::stdout().flush().unwrap();
     }
-    std::thread::sleep(core::time::Duration::from_millis(15));
+    art
 }
