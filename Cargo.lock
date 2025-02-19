@@ -387,6 +387,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "dotenv"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
+
+[[package]]
 name = "dptree"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -490,6 +496,12 @@ dependencies = [
  "pkg-config",
  "vcpkg",
 ]
+
+[[package]]
+name = "flager"
+version = "0.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d114e5be8d88fc3422f49df86fd8d5973c6929afee097c9f43aceffd220de93"
 
 [[package]]
 name = "flate2"
@@ -1798,7 +1810,9 @@ dependencies = [
 name = "rusty-apple"
 version = "0.1.0"
 dependencies = [
+ "dotenv",
  "ffmpeg-next",
+ "flager",
  "image",
  "prometheus",
  "teloxide",
