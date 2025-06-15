@@ -8,7 +8,6 @@ target/
 # Data
 data/
 !data/.gitkeep
-tmp/
 
 # Env
 .env
