@@ -5,7 +5,7 @@ build:
 
 .PHONY: runtty
 runtty: build
-	./target/release/rusty-apple -t tty -w 60 -h 40
+	./target/release/rusty-apple -t tty -w 100 -h 75
 
 .PHONY: runtg
 runtg: build
